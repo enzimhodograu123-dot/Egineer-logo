@@ -1,0 +1,146 @@
+task.wait(0.1)
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+local UI = Instance.new("ScreenGui")
+local MainIcon = Instance.new("ImageButton")
+local Panel = Instance.new("ImageLabel")
+local PanelText = Instance.new("TextLabel")
+local ActionBtn = Instance.new("TextButton")
+
+UI.Name = "QuantumUI"
+UI.ResetOnSpawn = false
+UI.Parent = PlayerGui
+
+MainIcon.Parent = UI
+MainIcon.BackgroundTransparency = 1
+MainIcon.Position = UDim2.new(-0.2, 0, 0.4, 0)
+MainIcon.Size = UDim2.new(0, 90, 0, 90)
+MainIcon.Image = "rbxassetid://111819766941754"
+MainIcon.AutoButtonColor = false
+MainIcon.Rotation = -180
+MainIcon.ImageTransparency = 1
+
+Panel.Parent = UI
+Panel.BackgroundTransparency = 1
+Panel.Position = UDim2.new(0.085, 0, 0.813, 0)
+Panel.Size = UDim2.new(0, 269, 0, 90)
+Panel.Image = "rbxassetid://108604467399535"
+Panel.ImageTransparency = 1
+Panel.Visible = false
+
+PanelText.Parent = Panel
+PanelText.BackgroundTransparency = 1
+PanelText.Size = UDim2.new(1, 0, 1, 0)
+PanelText.Font = Enum.Font.SourceSansBold
+PanelText.Text = "Welcome to Engineer! The best server for trolling players and destroying maps!! Have fun exploring the map!"
+PanelText.TextColor3 = Color3.fromRGB(255,255,255)
+PanelText.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+PanelText.TextStrokeTransparency = 0
+PanelText.TextScaled = true
+PanelText.TextTransparency = 1
+PanelText.TextWrapped = true
+
+ActionBtn.Parent = Panel
+ActionBtn.BackgroundTransparency = 1
+ActionBtn.Position = UDim2.new(0.05, 0, -0.6, 0)
+ActionBtn.Size = UDim2.new(0, 90, 0, 45)
+ActionBtn.Font = Enum.Font.SourceSansBold
+ActionBtn.Text = "R15 -> R6"
+ActionBtn.TextColor3 = Color3.fromRGB(255,255,255)
+ActionBtn.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+ActionBtn.TextStrokeTransparency = 0
+ActionBtn.TextScaled = true
+ActionBtn.TextTransparency = 1
+ActionBtn.Visible = false
+
+TweenService:Create(
+	MainIcon,
+	TweenInfo.new(0.9, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+	{
+		Position = UDim2.new(0.01, 0, 0.813, 0),
+		ImageTransparency = 0,
+		Rotation = 0
+	}
+):Play()
+
+local holding = false
+local rotConn
+
+local function startRotate()
+	if rotConn then rotConn:Disconnect() end
+	rotConn = RunService.RenderStepped:Connect(function(dt)
+		MainIcon.Rotation += 360 * dt
+	end)
+end
+
+local function stopRotate()
+	if rotConn then
+		rotConn:Disconnect()
+		rotConn = nil
+	end
+	TweenService:Create(
+		MainIcon,
+		TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Rotation = 0 }
+	):Play()
+end
+
+local function showPanel()
+	Panel.Visible = true
+	TweenService:Create(Panel, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		ImageTransparency = 0
+	}):Play()
+
+	TweenService:Create(PanelText, TweenInfo.new(0.35), {
+		TextTransparency = 0
+	}):Play()
+
+	local char = player.Character
+	if char and char:FindFirstChild("Humanoid") then
+		if char.Humanoid.RigType == Enum.HumanoidRigType.R15 then
+			ActionBtn.Visible = true
+			TweenService:Create(ActionBtn, TweenInfo.new(0.35), {
+				TextTransparency = 0
+			}):Play()
+		end
+	end
+end
+
+local function hidePanel()
+	TweenService:Create(Panel, TweenInfo.new(0.25), {
+		ImageTransparency = 1
+	}):Play()
+
+	TweenService:Create(PanelText, TweenInfo.new(0.25), {
+		TextTransparency = 1
+	}):Play()
+
+	TweenService:Create(ActionBtn, TweenInfo.new(0.25), {
+		TextTransparency = 1
+	}):Play()
+
+	task.delay(0.25, function()
+		Panel.Visible = false
+		ActionBtn.Visible = false
+	end)
+end
+
+MainIcon.MouseButton1Down:Connect(function()
+	if holding then return end
+	holding = true
+	startRotate()
+	showPanel()
+end)
+
+MainIcon.MouseButton1Up:Connect(function()
+	if not holding then return end
+	holding = false
+	stopRotate()
+	hidePanel()
+end)
