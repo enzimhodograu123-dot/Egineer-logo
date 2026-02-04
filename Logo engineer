@@ -3,6 +3,7 @@ task.wait(0.1)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
@@ -19,8 +20,8 @@ UI.Parent = PlayerGui
 
 MainIcon.Parent = UI
 MainIcon.BackgroundTransparency = 1
-MainIcon.Position = UDim2.new(-0.2, 0, 0.4, 0)
-MainIcon.Size = UDim2.new(0, 90, 0, 90)
+MainIcon.Position = UDim2.new(-0.25, 0, 0.4, 0)
+MainIcon.Size = UDim2.new(0, 130, 0, 130)
 MainIcon.Image = "rbxassetid://111819766941754"
 MainIcon.AutoButtonColor = false
 MainIcon.Rotation = -180
@@ -28,8 +29,8 @@ MainIcon.ImageTransparency = 1
 
 Panel.Parent = UI
 Panel.BackgroundTransparency = 1
-Panel.Position = UDim2.new(0.085, 0, 0.813, 0)
-Panel.Size = UDim2.new(0, 269, 0, 90)
+Panel.Position = UDim2.new(0.11, 0, 0.8, 0)
+Panel.Size = UDim2.new(0, 360, 0, 120)
 Panel.Image = "rbxassetid://108604467399535"
 Panel.ImageTransparency = 1
 Panel.Visible = false
@@ -48,8 +49,8 @@ PanelText.TextWrapped = true
 
 ActionBtn.Parent = Panel
 ActionBtn.BackgroundTransparency = 1
-ActionBtn.Position = UDim2.new(0.05, 0, -0.6, 0)
-ActionBtn.Size = UDim2.new(0, 90, 0, 45)
+ActionBtn.Position = UDim2.new(0.05, 0, -0.55, 0)
+ActionBtn.Size = UDim2.new(0, 130, 0, 55)
 ActionBtn.Font = Enum.Font.SourceSansBold
 ActionBtn.Text = "R15 -> R6"
 ActionBtn.TextColor3 = Color3.fromRGB(255,255,255)
@@ -61,9 +62,9 @@ ActionBtn.Visible = false
 
 TweenService:Create(
 	MainIcon,
-	TweenInfo.new(0.9, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+	TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
 	{
-		Position = UDim2.new(0.01, 0, 0.813, 0),
+		Position = UDim2.new(0.015, 0, 0.8, 0),
 		ImageTransparency = 0,
 		Rotation = 0
 	}
@@ -71,11 +72,12 @@ TweenService:Create(
 
 local holding = false
 local rotConn
+local hidden = false
 
 local function startRotate()
 	if rotConn then rotConn:Disconnect() end
 	rotConn = RunService.RenderStepped:Connect(function(dt)
-		MainIcon.Rotation += 360 * dt
+		MainIcon.Rotation += 320 * dt
 	end)
 end
 
@@ -86,18 +88,18 @@ local function stopRotate()
 	end
 	TweenService:Create(
 		MainIcon,
-		TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
 		{ Rotation = 0 }
 	):Play()
 end
 
 local function showPanel()
 	Panel.Visible = true
-	TweenService:Create(Panel, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	TweenService:Create(Panel, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 		ImageTransparency = 0
 	}):Play()
 
-	TweenService:Create(PanelText, TweenInfo.new(0.35), {
+	TweenService:Create(PanelText, TweenInfo.new(0.4), {
 		TextTransparency = 0
 	}):Play()
 
@@ -105,7 +107,7 @@ local function showPanel()
 	if char and char:FindFirstChild("Humanoid") then
 		if char.Humanoid.RigType == Enum.HumanoidRigType.R15 then
 			ActionBtn.Visible = true
-			TweenService:Create(ActionBtn, TweenInfo.new(0.35), {
+			TweenService:Create(ActionBtn, TweenInfo.new(0.4), {
 				TextTransparency = 0
 			}):Play()
 		end
@@ -132,7 +134,7 @@ local function hidePanel()
 end
 
 MainIcon.MouseButton1Down:Connect(function()
-	if holding then return end
+	if holding or hidden then return end
 	holding = true
 	startRotate()
 	showPanel()
@@ -143,4 +145,22 @@ MainIcon.MouseButton1Up:Connect(function()
 	holding = false
 	stopRotate()
 	hidePanel()
+end)
+
+UserInputService.InputBegan:Connect(function(input, gp)
+	if gp then return end
+	if input.KeyCode == Enum.KeyCode.X then
+		if hidden then return end
+		hidden = true
+		hidePanel()
+		TweenService:Create(
+			MainIcon,
+			TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{
+				ImageTransparency = 1,
+				Size = UDim2.new(0, 0, 0, 0),
+				Rotation = 180
+			}
+		):Play()
+	end
 end)
